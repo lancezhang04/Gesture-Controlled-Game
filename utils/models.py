@@ -62,13 +62,13 @@ class GestureRecognizer:
                              show_capture=True,
                              delay=1):
 
-        # Initialize window and video stream
+        # Initialize window_size and video stream
         if show_capture:
-            cv2.namedWindow('Test window')
+            cv2.namedWindow('Test window_size')
         capture = cv2.VideoCapture(0)
         ret, frame = capture.read()
 
-        # Key presses don't register when no window is initialized
+        # Key presses don't register when no window_size is initialized
         if not show_capture:
             continuous = True
         # Don't plot when continuously capturing
@@ -78,7 +78,7 @@ class GestureRecognizer:
         while ret:
             ret, frame = capture.read()
             if show_capture:
-                cv2.imshow('Test window', frame)
+                cv2.imshow('Test window_size', frame)
             key = cv2.waitKey(delay)
 
             # Exit when ESC is pressed
@@ -105,7 +105,7 @@ class GestureRecognizer:
 
         capture.release()
         if show_capture:
-            cv2.destroyWindow('Test window')
+            cv2.destroyWindow('Test window_size')
 
     def plot_landmarks(self, image):
         # Visualize the image and its predicted landmarks
