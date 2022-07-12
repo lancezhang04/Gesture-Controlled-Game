@@ -6,7 +6,7 @@ import cv2
 
 
 class GestureRecognizer:
-    def __init__(self, class_map=None):
+    def __init__(self, class_map=None, saved_clf=None):
         # Initialize hand tracking models
         mp_hands = mp.solutions.hands
         self.hands = mp_hands.Hands(
@@ -20,7 +20,7 @@ class GestureRecognizer:
         )
 
         # Initialize classifier of choice -> SVC
-        self.clf = SVC(gamma=2, C=1)
+        self.clf = saved_clf if saved_clf is not None else SVC(gamma=2, C=1)
         self.class_map = class_map
 
     def predict_landmarks(self, image, train=True):
