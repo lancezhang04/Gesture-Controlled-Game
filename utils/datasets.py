@@ -1,0 +1,58 @@
+import os
+import cv2
+import numpy as np
+from tqdm import tqdm
+from collections import defaultdict
+
+
+def process_image(image, cvt_color=True, target_size=(224, 224, 3)):
+    if image.shape != target_size:
+        raise NotImplementedError
+    if cvt_color:
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    return image
+
+
+def load_dataset(dataset_dir, recognizer, train=True):
+    images, landmarks, labels = [], [], []
+    undetected_count = defaultdict(lambda: 0)
+    class_count = defaultdict(lambda: 0)
+
+    for i, class_ in enumerate(os.listdir(dataset_dir)):
+        for image_name in tqdm(os.listdir(os.path.join(dataset_dir, class_)), ncols=80):
+            # Load and process image
+            image = cv2.imread(os.path.join(dataset_dir, class_, image_name))
+            image = process_image(image)
+            lms = recognizer.image2vec(image, train)
+
+            if lms is not None:
+                class_count[i] += 1
+                images.append(image)
+                landmarks.append(lms)
+                labels.append(i)
+            else:
+                undetected_count[i] += 1
+                # print(os.path.join(class_, image_name), '- hand not detected')
+
+    print('Undetected hands count by class:', dict(undetected_count))
+    print('Class count:', dict(class_count))
+    return [np.asarray(x) for x in [images, landmarks, labels]]
+
+
+def split_dataset(X, y, splits=[0.8, 0, 0.2]):
+    # Shuffle dataset
+    assert len(X) == len(y)
+    indices = np.arange(len(X))
+    np.random.shuffle(indices)
+    X, y = X[indices], y[indices]
+
+    # Split dataset
+    assert sum(splits) == 1
+    datasets, cur_idx = [], 0
+    for split in splits:
+        num_samples = int(split * len(X))
+        indices = slice(cur_idx, cur_idx + num_samples)
+        datasets.append([X[indices], y[indices]])
+        cur_idx += num_samples
+
+    return datasets
