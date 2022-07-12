@@ -1,12 +1,13 @@
 from utils.models import GestureRecognizer
 from utils.datasets import load_dataset, split_dataset
 
+
 class_map = {
     0: 'thumb_left',
     1: 'thumb_right'
 }
 key_map = {
-    ord('a'): 0,  # thumb pointing left
+    ord('a'): 0,  # thumb pointing left_pressed
     ord('d'): 1  # thumb pointing right
 }
 
