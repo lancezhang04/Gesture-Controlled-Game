@@ -10,7 +10,7 @@ import cv2
 window_size = [600, 1000]
 delay = 1
 player_width, player_height = 50, 50
-player_acc = 0.15  # divided by fps -> doesn't actually work
+player_acc = 0.2  # divided by fps -> doesn't actually work
 player_color = [203, 96, 21]
 gesture_control = True
 spawn_rate = 3000
