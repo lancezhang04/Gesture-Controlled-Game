@@ -1,0 +1,9 @@
+numpy
+pandas
+sklearn
+scikit-build  # necessary for installing OpenCV
+opencv-python
+pygame
+mediapipe
+matplotlib
+tqdm

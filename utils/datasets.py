@@ -3,6 +3,22 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 from collections import defaultdict
+import json
+
+
+def load_configs(config_dir):
+    with open(config_dir, 'r') as f:
+        maps = json.load(f)
+
+    # Process class map
+    class_map = maps['class_map']
+    class_map = {int(k): v for k, v in class_map.items()}
+
+    # Process key map
+    key_map = maps['key_map']
+    key_map = {ord(k): int(v) for k, v in key_map.items()}
+
+    return class_map, key_map
 
 
 def process_image(image, cvt_color=True, target_size=(224, 224, 3)):
