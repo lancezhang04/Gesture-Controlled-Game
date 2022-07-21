@@ -20,7 +20,7 @@ class_map = {
     0: 'Left',
     1: 'Right'
 }
-with open('saved_models/clf.pkl', 'rb') as f:
+with open('saved_models/left_right.pkl', 'rb') as f:
     clf = pickle.load(f)
 recognizer = GestureRecognizer(saved_clf=clf)
 capture = cv2.VideoCapture(0)

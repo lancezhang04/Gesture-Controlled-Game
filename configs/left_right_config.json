@@ -1,4 +1,11 @@
 {
   "summary": "Control scheme with only two actions: left and right.",
-
+  "class_map": {
+    "0": "thumb_left",
+    "1": "thumb_right"
+  },
+  "key_map": {
+    "a": "0",
+    "d": "1"
+  }
 }

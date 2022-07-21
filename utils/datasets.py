@@ -34,6 +34,9 @@ def load_dataset(dataset_dir, recognizer, train=True):
     undetected_count = defaultdict(lambda: 0)
     class_count = defaultdict(lambda: 0)
 
+    # Test recognizer, trigger TensorFlow Lite message
+    recognizer.image2vec(np.zeros((224, 224, 3), dtype='uint8'))
+
     for i, class_ in enumerate(os.listdir(dataset_dir)):
         for image_name in tqdm(os.listdir(os.path.join(dataset_dir, class_)), ncols=80):
             # Load and process image
@@ -50,12 +53,17 @@ def load_dataset(dataset_dir, recognizer, train=True):
                 undetected_count[i] += 1
                 # print(os.path.join(class_, image_name), '- hand not detected')
 
-    print('Undetected hands count by class:', dict(undetected_count))
+    # Print messages
+    if undetected_count:
+        print('Undetected hands count by class:', dict(undetected_count))
+    else:
+        print('All hands are detected')
     print('Class count:', dict(class_count))
+
     return [np.asarray(x) for x in [images, landmarks, labels]]
 
 
-def split_dataset(X, y, splits=[0.8, 0, 0.2]):
+def split_dataset(X, y, splits=(0.8, 0, 0.2), verbose=0):
     # Shuffle dataset
     assert len(X) == len(y)
     indices = np.arange(len(X))
@@ -70,5 +78,10 @@ def split_dataset(X, y, splits=[0.8, 0, 0.2]):
         indices = slice(cur_idx, cur_idx + num_samples)
         datasets.append([X[indices], y[indices]])
         cur_idx += num_samples
+
+    # Print out splits information
+    if verbose > 0:
+        for i, dataset in enumerate(datasets):
+            print(f'Dataset split {i + 1} size:', len(dataset[0]))
 
     return datasets

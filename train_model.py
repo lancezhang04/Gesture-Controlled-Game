@@ -1,55 +1,75 @@
 from utils.models import GestureRecognizer
 from utils.datasets import load_dataset, split_dataset, load_configs
 import pickle
+import argparse
 
 
-# Load configs for control scheme
-control_scheme_config = 'configs/left_right_config.json'
-class_map, key_map = load_configs(control_scheme_config)
-
-# Load and split dataset into train/(val)/test
-recognizer = GestureRecognizer(class_map)
-# Process images with mediapipe model to obtain landmarks
-images, landmarks, labels = load_dataset(
-    'images/left_right',
-    recognizer
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    '--dataset_dir', default='images/left_neutral_right',
+    help='The directory in which images are stored'
 )
-datasets = split_dataset(
-    landmarks,
-    labels,
-    splits=[0.8, 0.2]
+parser.add_argument(
+    '--config_dir', default='configs/left_neutral_right_config.json',
+    help='Configuration file to use for training'
 )
+parser.add_argument('--model_save_dir', default=None, help='Where to save the trained model')
+parser.add_argument('--separate_test_dataset', default=None)
+parser.add_argument('--predict_video_stream', action='store_true')
 
-# Fit and evaluate model
-recognizer.clf.fit(*datasets[0])
-print('Test accuracy:', recognizer.clf.score(*datasets[-1]))
 
-# Save trained model
-with open('saved_models/clf.pkl', 'wb') as f:
-    pickle.dump(recognizer.clf, f)
+if __name__ == '__main__':
+    args = parser.parse_args()
+    # Check if `model_save_dir` is in correct format (if specified)
+    assert args.model_save_dir.endswith('.pkl') if args.model_save_dir is not None else True
 
-# Load and split dataset from a new domain (unseen room)
-images_test, landmarks_test, labels_test = load_dataset(
-    'images/left_right_test',
-    recognizer,
-    train=False
-)
-dataset_test = split_dataset(
-    landmarks_test,
-    labels_test,
-    splits=[1.0]
-)[0]
-print('Test (new domain) accuracy:', recognizer.clf.score(*dataset_test))
+    # Load configs for control scheme
+    class_map, key_map = load_configs(args.config_dir)
+    # Load model
+    recognizer = GestureRecognizer(class_map)
 
-# Inspect individual image
-# recognizer.plot_landmarks(images_test[5])
+    # Load dataset, including predicting landmarks using mediapipe
+    images, landmarks, labels = load_dataset(args.dataset_dir, recognizer)
+    # Split dataset
+    datasets = split_dataset(
+        landmarks,
+        labels,
+        splits=[0.8, 0.2],
+        verbose=1
+    )
 
-# Predict from video stream
-recognizer.predict_video_stream(
-    continuous=True,
-    plot_image=False,
-    delay=1,
-    show_capture=False
-)
+    # Fit and evaluate model
+    print('\nTraining model...', end=' ')
+    recognizer.clf.fit(*datasets[0])
+    print('Complete\nTest accuracy:', recognizer.clf.score(*datasets[-1]))
 
-print('Complete.')
+    # Save trained model
+    if args.model_save_dir is not None:
+        with open(args.model_save_dir, 'wb') as f:
+            pickle.dump(recognizer.clf, f)
+        print('Model saved at', args.model_save_dir)
+    else:
+        print('No `model_save_dir` specified, model is not saved')
+
+    # Load and split dataset from a new domain (unseen room)
+    if args.separate_test_dataset is not None:
+        images_test, landmarks_test, labels_test = load_dataset(
+            args.separate_test_dataset,
+            recognizer,
+            train=False
+        )
+        dataset_test = split_dataset(
+            landmarks_test,
+            labels_test,
+            splits=[1.0]
+        )[0]
+        print('Test (new domain) accuracy:', recognizer.clf.score(*dataset_test))
+
+    # Predict from video stream
+    if args.predict_video_stream:
+        recognizer.predict_video_stream(
+            continuous=True,
+            plot_image=False,
+            delay=1,
+            show_capture=False
+        )
