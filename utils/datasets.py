@@ -37,6 +37,7 @@ def load_dataset(dataset_dir, recognizer, train=True):
     # Test recognizer, trigger TensorFlow Lite message
     recognizer.image2vec(np.zeros((224, 224, 3), dtype='uint8'))
 
+    print(f'Processing images from {len(os.listdir(dataset_dir))} classes:')
     for i, class_ in enumerate(os.listdir(dataset_dir)):
         for image_name in tqdm(os.listdir(os.path.join(dataset_dir, class_)), ncols=80):
             # Load and process image

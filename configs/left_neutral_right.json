@@ -1,9 +1,9 @@
 {
   "summary": "Control scheme with three actions, allows players to move horizontally.",
   "class_map": {
-    "0": "thumb_left",
+    "0": "left",
     "1": "neutral",
-    "2": "thumb_right"
+    "2": "right"
   },
   "key_map": {
     "a": "0",

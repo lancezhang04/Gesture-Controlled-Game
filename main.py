@@ -1,6 +1,8 @@
 import pygame
 from utils.game import Player, Enemy
 from utils.models import GestureRecognizer
+from utils.datasets import load_configs
+from utils.images import process_frame
 import pandas as pd
 import pickle
 import cv2
@@ -16,11 +18,8 @@ gesture_control = True
 spawn_rate = 3000
 
 # Initialize recognizer and capture
-class_map = {
-    0: 'Left',
-    1: 'Right'
-}
-with open('saved_models/left_right.pkl', 'rb') as f:
+class_map, key_map = load_configs('configs/left_neutral_right.json')
+with open('saved_models/left_neutral_right.pkl', 'rb') as f:
     clf = pickle.load(f)
 recognizer = GestureRecognizer(saved_clf=clf)
 capture = cv2.VideoCapture(0)
@@ -59,14 +58,17 @@ while run and ret:
         # This is where frame rate is capped
         if not skip_frame:
             ret, frame = capture.read()
-            frame = cv2.resize(frame, (224, 224))
-            frame = frame[:, ::-1, ::-1]
+            frame = process_frame(frame)
 
             # Model prediction and player action
             pred = recognizer.predict_image(frame)
             if pred is not None:
-                left_pressed = pred == 0
-                right_pressed = pred == 1
+                if pred == 0:
+                    left_pressed, right_pressed = True, False
+                elif pred == 2:
+                    left_pressed, right_pressed = False, True
+                else:
+                    left_pressed, right_pressed = False, False
                 action_text = class_map[pred]
             else:
                 left_pressed = right_pressed = False

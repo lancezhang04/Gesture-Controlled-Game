@@ -6,16 +6,14 @@ from tqdm import tqdm
 from datetime import datetime
 from uuid import uuid4
 
-# Loading configs -> need to push last update
-# from utils.datasets import load_configs
+from utils.datasets import load_configs
 from utils.images import process_frame
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '--type', default='left_neutral_right',
-    choices=['left_right', 'left_neutral_right'],
-    help='The type of dataset to collect'
+    '--config_dir',
+    help='Dataset configuration file'
 )
 parser.add_argument(
     '--save_dir',
@@ -23,16 +21,6 @@ parser.add_argument(
 )
 
 # Temporary measure, change later
-key_map = {
-    ord('a'): 0,
-    ord('s'): 1,
-    ord('d'): 2,
-}
-class_map = {
-    0: 'thumb_left',
-    1: 'neutral',
-    2: 'thumb_right'
-}
 image_config = {
     'target_size': (224, 224),
     'avoid_distortion': True
@@ -102,11 +90,9 @@ def save_images(images_batch, labels_batch):
 if __name__ == '__main__':
     args = parser.parse_args()
     save_dir = args.save_dir
-    print(args.type, args.save_dir)
 
     # Load class and key maps
-    key_map = key_map
-    class_map = class_map
+    class_map, key_map = load_configs(args.config_dir)
     class_count = {class_: 0 for class_ in class_map.values()}
 
     # Create save directory if it does not exist, count samples

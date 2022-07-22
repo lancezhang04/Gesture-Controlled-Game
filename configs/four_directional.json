@@ -1,0 +1,17 @@
+{
+  "summary": "Control scheme with four directions, allows player to move to four directions",
+  "class_map": {
+    "0": "up",
+    "1": "down",
+    "2": "left",
+    "3": "right",
+    "4": "neutral"
+  },
+  "key_map": {
+    "w": "0",
+    "x": "1",
+    "a": "2",
+    "d": "3",
+    "s": "4"
+  }
+}
